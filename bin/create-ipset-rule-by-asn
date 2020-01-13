@@ -1,0 +1,12 @@
+#!/bin/bash
+[ -z "$1" ] && exit 1
+
+ASN=$1
+
+curl -s https://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN-CSV.zip |pv> /tmp/g-ASN.zip && \
+unzip -c /tmp/g-ASN.zip  |egrep "^[0-9]{1,3}\." > /tmp/GeoLite2-ASN-Blocks-IPv4.csv
+
+ipset create $ASN hash:net 
+( [ -f /tmp/GeoLite2-ASN-Blocks-IPv4.csv ] && cat /tmp/GeoLite2-ASN-Blocks-IPv4.csv || cat GeoLite2-ASN-Blocks-IPv4.csv ) | grep -i $ASN |cut -f 1 -d ","|sort -n|while read IPNET ; do 
+	ipset add $ASN $IPNET 
+done
