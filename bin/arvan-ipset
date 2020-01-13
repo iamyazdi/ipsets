@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#######################################################
+#   generate ipset for arvan cloud cdn                #
+#######################################################
+
+URL=https://www.arvancloud.com/fa/ips.txt
+
+ipset create arvancloud --exist hash:net
+
+(curl -s $URL;echo)| while read IPNET ; 
+do
+	[ ! -z "$URL" ] && ipset add arvancloud --exist $IPNET || echo Empty IPNET
+done
+
